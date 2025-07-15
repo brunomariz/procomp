@@ -145,6 +145,11 @@ def generate_keywords_light(text: str, top_n: int = 10) -> Tuple[List[str], List
 
     # Count and rank
     most_common = Counter(keywords).most_common(top_n)
+
+    # fmt: off
+    import pdb; pdb.set_trace()
+    # fmt: on
+
     keyword_strings = [kw for kw, _ in most_common]
 
     tier1 = keyword_strings[:2]
@@ -170,10 +175,7 @@ async def generate_profile(website_text: str) -> CompanyProfile:
 
     # kw_model = KeyBERT(model=model)
     # keywords = kw_model.extract_keywords(sanitized_text, top_n=10)
-    keywords = generate_keywords_light(sanitized_text)
-
-    tier1 = [kw for kw, _ in keywords[:2]]
-    tier2 = [kw for kw, _ in keywords[2:]]
+    tier1, tier2 = generate_keywords_light(sanitized_text)
 
     # Extract emails
     emails = extract_emails(sanitized_text)
