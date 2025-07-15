@@ -10,11 +10,18 @@ from app.verification import verify_url
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
+# More explicit CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",  # Next.js dev server
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",  # Alternative port
+        "https://procomp-teal.vercel.app/",
+        "https://procomp.brunomariz.dev/",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
