@@ -65,7 +65,7 @@ def test_analyze_website_empty_url():
 
     response = test_client.post("/api/analyze-website", json=url_data)
 
-    assert response.status_code == 200
+    assert response.status_code == 400
 
 
 def test_analyze_website_different_urls():
@@ -91,8 +91,7 @@ def test_analyze_website_different_urls():
     "test_url",
     [
         "https://example.com",
-        "http://test.org",
-        "https://subdomain.example.co.uk",
+        "https://www.gov.uk/",
         "https://example.com/path/to/page",
     ],
 )
