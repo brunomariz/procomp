@@ -1,8 +1,8 @@
-from typing import List
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+
+from app.generate_profile import generate_profile
+from app.types import CompanyProfile, URLRequest
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
@@ -13,20 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-class URLRequest(BaseModel):
-    url: str
-
-
-class CompanyProfile(BaseModel):
-    url: str
-    company_name: str
-    company_description: str
-    tier1_keywords: List[str]
-    tier2_keywords: List[str]
-    emails: List[str]
-    poc: str
 
 
 @app.get("/")
@@ -44,14 +30,7 @@ async def analyze_website(request: URLRequest):
     """
     Analyze a website URL and return company information
     """
-    # TODO: Add website analysis logic here
 
-    return CompanyProfile(
-        url=request.url,
-        company_name="Example Company",
-        company_description="A sample company analysis",
-        tier1_keywords=["technology", "innovation"],
-        tier2_keywords=["software", "development"],
-        emails=["john@example.com"],
-        poc="John Doe",
-    )
+    profile = await generate_profile(request.url)
+
+    return profile
