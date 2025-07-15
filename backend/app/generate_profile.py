@@ -95,27 +95,59 @@ def guess_poc_simple(html: str) -> Dict[str, Optional[str]]:
     }
 
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+import re
+from collections import Counter
+from typing import List, Tuple
 
 
-def generate_keywords_tfidf(text: str, top_n: int = 10):
-    """
-    Lightweight keyword extractor using TF-IDF (no ML model required).
-    Returns top 2 as tier1 and the rest as tier2.
-    """
-    # Extract candidate keywords as n-grams
-    vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words="english")
-    tfidf_matrix = vectorizer.fit_transform([text])
-    scores = tfidf_matrix.toarray()[0]
-    feature_names = vectorizer.get_feature_names_out()
+def generate_keywords_light(text: str, top_n: int = 10) -> Tuple[List[str], List[str]]:
+    # Basic tokenization
+    words = re.findall(r"\b[a-zA-Z]{3,}\b", text.lower())  # 3+ letter words
 
-    # Pair feature names with scores and sort
-    scored_keywords = sorted(
-        zip(feature_names, scores), key=lambda x: x[1], reverse=True
-    )
+    # Optional: filter stopwords
+    stopwords = {
+        "the",
+        "and",
+        "for",
+        "with",
+        "that",
+        "from",
+        "this",
+        "you",
+        "your",
+        "are",
+        "but",
+        "have",
+        "has",
+        "was",
+        "our",
+        "not",
+        "can",
+        "will",
+        "use",
+        "more",
+        "all",
+        "any",
+        "out",
+        "one",
+        "about",
+        "into",
+        "they",
+        "their",
+        "been",
+        "each",
+        "some",
+        "other",
+        "them",
+        "what",
+    }
 
-    # Get top N keyword strings
-    keyword_strings = [kw for kw, _ in scored_keywords[:top_n]]
+    keywords = [w for w in words if w not in stopwords]
+
+    # Count and rank
+    most_common = Counter(keywords).most_common(top_n)
+    keyword_strings = [kw for kw, _ in most_common]
+
     tier1 = keyword_strings[:2]
     tier2 = keyword_strings[2:]
     return tier1, tier2
@@ -139,7 +171,7 @@ async def generate_profile(website_text: str) -> CompanyProfile:
 
     # kw_model = KeyBERT(model=model)
     # keywords = kw_model.extract_keywords(sanitized_text, top_n=10)
-    keywords = generate_keywords_tfidf(sanitized_text)
+    keywords = generate_keywords_light(sanitized_text)
 
     tier1 = [kw for kw, _ in keywords[:2]]
     tier2 = [kw for kw, _ in keywords[2:]]
