@@ -5,6 +5,7 @@
       "use": "@vercel/python"
     }
   ],
+  "installCommand": "pip install keybert --no-deps scikit-learn model2vec && pip install -r requirements.txt",
   "routes": [
     {
       "src": "/(.*)",
