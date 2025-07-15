@@ -2,7 +2,6 @@ import re
 from typing import Dict, Optional
 
 from bs4 import BeautifulSoup
-from model2vec import StaticModel
 
 from app.types import CompanyProfile
 from app.verification import sanitize_html
