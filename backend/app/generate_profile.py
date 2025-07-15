@@ -2,7 +2,6 @@ import re
 from typing import Dict, Optional
 
 from bs4 import BeautifulSoup
-from keybert import KeyBERT
 from model2vec import StaticModel
 
 from app.types import CompanyProfile
@@ -96,6 +95,43 @@ def guess_poc_simple(html: str) -> Dict[str, Optional[str]]:
     }
 
 
+def generate_keywords(text: str):
+    from model2vec import StaticModel
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+
+    # Load lightweight model from Hugging Face
+    model = StaticModel.from_pretrained("minishlab/potion-base-8M")
+
+    def extract_keywords(text: str, top_n: int = 10):
+        # Generate candidate keywords (n-grams)
+        vectorizer = CountVectorizer(ngram_range=(1, 2), stop_words="english").fit(
+            [text]
+        )
+        candidates = vectorizer.get_feature_names_out()
+
+        # Embed document and candidate phrases
+        doc_embedding = model.encode([text])
+        candidate_embeddings = model.encode(candidates)
+
+        # Compute cosine similarity
+        similarities = cosine_similarity(doc_embedding, candidate_embeddings).flatten()
+
+        # Rank candidates by similarity
+        top_indices = similarities.argsort()[-top_n:][::-1]
+        keywords = [(candidates[i], similarities[i]) for i in top_indices]
+
+        return keywords
+
+    # Example
+    text = "Model2Vec is a lightweight model for embedding text for keyword extraction."
+    keywords = extract_keywords(text, top_n=10)
+    keyword_strings = [kw for kw, _ in keywords]
+    tier1 = keyword_strings[:2]
+    tier2 = keyword_strings[2:]
+    return tier1, tier2
+
+
 async def generate_profile(website_text: str) -> CompanyProfile:
 
     # Extract company name
@@ -109,8 +145,12 @@ async def generate_profile(website_text: str) -> CompanyProfile:
 
     # Load a model from the HuggingFace hub (in this case the potion-base-8M model)
     model = StaticModel.from_pretrained("minishlab/potion-base-8M")
-    kw_model = KeyBERT(model=model)
-    keywords = kw_model.extract_keywords(sanitized_text, top_n=10)
+
+    # from keybert import KeyBERT
+
+    # kw_model = KeyBERT(model=model)
+    # keywords = kw_model.extract_keywords(sanitized_text, top_n=10)
+    keywords = generate_keywords(sanitized_text)
 
     tier1 = [kw for kw, _ in keywords[:2]]
     tier2 = [kw for kw, _ in keywords[2:]]
