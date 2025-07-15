@@ -142,3 +142,23 @@ def test_analyze_energy_website():
     )
     assert data.analysis.poc != "Unknown"
     assert "Phone" in data.analysis.poc
+
+
+# def test_analyze_construction_website():
+#     """Test analyzing an construction company website"""
+#     url_data = {"url": "https://atgusa.com/"}
+
+#     response = test_client.post("/api/analyze-website", json=url_data)
+
+#     assert response.status_code == 200
+
+#     data = AnalyzeWebsiteResponse(
+#         url=response.json()["url"],
+#         analysis=CompanyProfile(**response.json()["analysis"]),
+#     )
+
+#     assert (
+#         "energy" in data.analysis.tier1_keywords
+#         or "energy" in data.analysis.tier2_keywords
+#     )
+#     assert data.analysis.poc != "Unknown"

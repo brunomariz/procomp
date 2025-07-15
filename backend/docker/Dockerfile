@@ -6,7 +6,6 @@ RUN python3 -m venv /venv
 COPY backend/requirements.txt requirements.txt
 RUN . /venv/bin/activate && pip install -r requirements.txt
 RUN . /venv/bin/activate && pip install -r requirements-dev.txt
-RUN . /venv/bin/activate && pip install -r requirements-model.txt
 
 # Expose port
 EXPOSE 8000
