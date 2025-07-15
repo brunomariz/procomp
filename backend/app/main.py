@@ -50,6 +50,3 @@ async def analyze_website(request: URLRequest):
         poc="John Doe",
     )
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
