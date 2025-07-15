@@ -146,10 +146,6 @@ def generate_keywords_light(text: str, top_n: int = 10) -> Tuple[List[str], List
     # Count and rank
     most_common = Counter(keywords).most_common(top_n)
 
-    # fmt: off
-    import pdb; pdb.set_trace()
-    # fmt: on
-
     keyword_strings = [kw for kw, _ in most_common]
 
     tier1 = keyword_strings[:2]
