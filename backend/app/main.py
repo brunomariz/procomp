@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.generate_profile import generate_profile
-from app.types import CompanyProfile, URLRequest
+from app.types import AnalyzeWebsiteResponse, CompanyProfile, URLRequest
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
@@ -28,7 +28,7 @@ async def health_check():
     return {"status": "ok"}
 
 
-@app.post("/api/analyze-website", response_model=CompanyProfile)
+@app.post("/api/analyze-website", response_model=AnalyzeWebsiteResponse)
 async def analyze_website(request: URLRequest):
     """
     Analyze a website URL and return company information
@@ -41,6 +41,6 @@ async def analyze_website(request: URLRequest):
         response = await client.get(request.url)
     website_text = response.text
 
-    profile = await generate_profile(website_text, request.url)
+    profile = await generate_profile(website_text)
 
-    return profile
+    return AnalyzeWebsiteResponse(url=request.url, analysis=profile)
