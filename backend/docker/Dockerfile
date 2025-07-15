@@ -9,4 +9,4 @@ RUN . /venv/bin/activate && pip install "fastapi[standard]"
 EXPOSE 8000
 
 # Run the FastAPI application
-CMD ["fastapi", "run", "app.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD [".", "/venv/bin/activate", "&&", "fastapi", "run", "app/main.py", "--host", "0.0.0.0", "--port", "8000"]
