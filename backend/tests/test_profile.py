@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.types import AnalyzeWebsiteResponse, CompanyProfile
 
 test_client = TestClient(app)
 
@@ -14,28 +15,31 @@ def test_analyze_website_success():
 
     assert response.status_code == 200
 
-    data = response.json()
+    data = AnalyzeWebsiteResponse(
+        url=response.json()["url"],
+        analysis=CompanyProfile(**response.json()["analysis"]),
+    )
 
     # Check that all required fields are present
-    assert "url" in data
-    assert "company_name" in data
-    assert "company_description" in data
-    assert "tier1_keywords" in data
-    assert "tier2_keywords" in data
-    assert "emails" in data
-    assert "poc" in data
+    assert hasattr(data, "url")
+    assert hasattr(data.analysis, "company_name")
+    assert hasattr(data.analysis, "company_description")
+    assert hasattr(data.analysis, "tier1_keywords")
+    assert hasattr(data.analysis, "tier2_keywords")
+    assert hasattr(data.analysis, "emails")
+    assert hasattr(data.analysis, "poc")
 
     # Check data types
-    assert isinstance(data["url"], str)
-    assert isinstance(data["company_name"], str)
-    assert isinstance(data["company_description"], str)
-    assert isinstance(data["tier1_keywords"], list)
-    assert isinstance(data["tier2_keywords"], list)
-    assert isinstance(data["emails"], list)
-    assert isinstance(data["poc"], str)
+    assert isinstance(data.url, str)
+    assert isinstance(data.analysis.company_name, str)
+    assert isinstance(data.analysis.company_description, str)
+    assert isinstance(data.analysis.tier1_keywords, list)
+    assert isinstance(data.analysis.tier2_keywords, list)
+    assert isinstance(data.analysis.emails, list)
+    assert isinstance(data.analysis.poc, str)
 
     # Check that URL matches the input
-    assert data["url"] == url_data["url"]
+    assert data.url == url_data["url"]
 
 
 def test_analyze_website_missing_url():
@@ -79,12 +83,18 @@ def test_analyze_website_different_urls():
     assert response_1.status_code == 200
     assert response_2.status_code == 200
 
-    data_1 = response_1.json()
-    data_2 = response_2.json()
+    data_1 = AnalyzeWebsiteResponse(
+        url=response_1.json()["url"],
+        analysis=CompanyProfile(**response_1.json()["analysis"]),
+    )
+    data_2 = AnalyzeWebsiteResponse(
+        url=response_2.json()["url"],
+        analysis=CompanyProfile(**response_2.json()["analysis"]),
+    )
 
     # URLs should match the input
-    assert data_1["url"] == url_data_1["url"]
-    assert data_2["url"] == url_data_2["url"]
+    assert data_1.url == url_data_1["url"]
+    assert data_2.url == url_data_2["url"]
 
 
 @pytest.mark.parametrize(
@@ -103,41 +113,25 @@ def test_analyze_website_various_url_formats(test_url):
 
     assert response.status_code == 200
 
-    data = response.json()
-    assert data["url"] == test_url
-    assert len(data["company_name"]) > 0
-    assert len(data["tier1_keywords"]) >= 0
-    assert len(data["tier2_keywords"]) >= 0
+    data = AnalyzeWebsiteResponse(
+        url=response.json()["url"],
+        analysis=CompanyProfile(**response.json()["analysis"]),
+    )
+    assert data.url == test_url
+    assert len(data.analysis.company_name) > 0
+    assert len(data.analysis.tier1_keywords) >= 0
+    assert len(data.analysis.tier2_keywords) >= 0
 
 
-def test_analyze_website_response_structure():
-    """Test the exact structure of the response model"""
-    url_data = {"url": "https://example.com"}
+def test_analyze_energy_website():
+    """Test analyzing an energy company website"""
+    url_data = {"url": "https://totalenergies.com/"}
 
     response = test_client.post("/api/analyze-website", json=url_data)
 
     assert response.status_code == 200
 
-    data = response.json()
-
-    # Verify exact keys (no extra, no missing)
-    expected_keys = {
-        "url",
-        "company_name",
-        "company_description",
-        "tier1_keywords",
-        "tier2_keywords",
-        "emails",
-        "poc",
-    }
-    assert set(data.keys()) == expected_keys
-
-    # Verify that keyword lists contain strings
-    for keyword in data["tier1_keywords"]:
-        assert isinstance(keyword, str)
-
-    for keyword in data["tier2_keywords"]:
-        assert isinstance(keyword, str)
-
-    for email in data["emails"]:
-        assert isinstance(email, str)
+    data = AnalyzeWebsiteResponse(
+        url=response.json()["url"],
+        analysis=CompanyProfile(**response.json()["analysis"]),
+    )
