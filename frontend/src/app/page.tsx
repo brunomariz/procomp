@@ -2,12 +2,12 @@
 
 import URLInput from "@/components/URLInput";
 import ProfileCard from "@/components/ProfileCard";
-import Image from "next/image";
 import { useState } from "react";
 import { WebsiteAnalysisResponse } from "@/types/types";
 
 export default function Home() {
-  const [analysisData, setAnalysisData] = useState<WebsiteAnalysisResponse | null>(null);
+  const [analysisData, setAnalysisData] =
+    useState<WebsiteAnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAnalysisComplete = (data: WebsiteAnalysisResponse) => {
@@ -28,13 +28,6 @@ export default function Home() {
           <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
             <h1 className="text-4xl font-bold">ProComp</h1>
             <p className="text-lg text-gray-600">Company profile generator</p>
-            <Image
-              src="/logo.png"
-              alt="ProComp Logo"
-              width={150}
-              height={150}
-              className="rounded-full"
-            />
             <div className="w-full max-w-md">
               <URLInput
                 onAnalysisStart={handleAnalysisStart}
