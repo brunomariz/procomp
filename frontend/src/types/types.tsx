@@ -1,5 +1,3 @@
-import React from "react";
-
 export interface CompanyProfile {
   company_name: string;
   company_description: string;
