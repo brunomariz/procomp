@@ -135,3 +135,10 @@ def test_analyze_energy_website():
         url=response.json()["url"],
         analysis=CompanyProfile(**response.json()["analysis"]),
     )
+
+    assert (
+        "energy" in data.analysis.tier1_keywords
+        or "energy" in data.analysis.tier2_keywords
+    )
+    assert data.analysis.poc != "Unknown"
+    assert "Phone" in data.analysis.poc

@@ -1,11 +1,12 @@
 from urllib.parse import urlparse
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.generate_profile import generate_profile
-from app.types import AnalyzeWebsiteResponse, CompanyProfile, URLRequest
+from app.types import AnalyzeWebsiteResponse, URLRequest
+from app.verification import verify_url
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
@@ -33,13 +34,34 @@ async def analyze_website(request: URLRequest):
     """
     Analyze a website URL and return company information
     """
-    parsed_url = urlparse(request.url)
-    if not (parsed_url.scheme in ["http", "https"] and parsed_url.netloc):
-        raise HTTPException(status_code=400, detail="Invalid URL provided")
 
+    verify_url(request.url)
+
+    parsed_url = urlparse(request.url)
+    base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
+
+    page_urls = [request.url]
+    for path in ["/about", "/contact", "/contact-form"]:
+        candidate_url = f"{base_url}{path}"
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(candidate_url, timeout=5)
+            if resp.status_code == 200:
+                page_urls.append(candidate_url)
+        except Exception:
+            pass
+
+    website_texts = []
     async with httpx.AsyncClient() as client:
-        response = await client.get(request.url)
-    website_text = response.text
+        for url in page_urls:
+            try:
+                resp = await client.get(url, timeout=10)
+                if resp.status_code == 200:
+                    website_texts.append(resp.text)
+            except Exception:
+                continue
+
+    website_text = "\n".join(website_texts)
 
     profile = await generate_profile(website_text)
 
