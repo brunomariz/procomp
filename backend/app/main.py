@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from urllib.parse import urlparse
+
+import httpx
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.generate_profile import generate_profile
@@ -30,7 +33,14 @@ async def analyze_website(request: URLRequest):
     """
     Analyze a website URL and return company information
     """
+    parsed_url = urlparse(request.url)
+    if not (parsed_url.scheme in ["http", "https"] and parsed_url.netloc):
+        raise HTTPException(status_code=400, detail="Invalid URL provided")
 
-    profile = await generate_profile(request.url)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(request.url)
+    website_text = response.text
+
+    profile = await generate_profile(website_text, request.url)
 
     return profile

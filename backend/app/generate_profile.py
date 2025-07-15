@@ -1,15 +1,7 @@
-import httpx
-
 from app.types import CompanyProfile
 
 
-async def generate_profile(url: str) -> CompanyProfile:
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url)
-    website_text = response.text
-
-    print(website_text)
+async def generate_profile(website_text: str, url: str) -> CompanyProfile:
 
     profile = CompanyProfile(
         url=url,
