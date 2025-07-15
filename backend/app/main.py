@@ -10,10 +10,14 @@ from app.verification import verify_url
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
-# More explicit CORS configuration
+
+origins = [
+    "*",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
