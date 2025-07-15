@@ -4,8 +4,8 @@ RUN python3 -m venv /venv
 
 # Copy requirements file if you have one, or install directly
 COPY backend/requirements.txt requirements.txt
-RUN . /venv/bin/activate && pip install -r requirements.txt
-RUN . /venv/bin/activate && pip install -r requirements-dev.txt
+
+RUN . /venv/bin/activate && pip install scikit-learn model2vec && pip install keybert --no-deps  && pip install -r requirements.txt
 
 # Expose port
 EXPOSE 8000

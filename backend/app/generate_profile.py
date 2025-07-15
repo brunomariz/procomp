@@ -3,6 +3,7 @@ from typing import Dict, Optional
 
 from bs4 import BeautifulSoup
 from keybert import KeyBERT
+from model2vec import StaticModel
 
 from app.types import CompanyProfile
 from app.verification import sanitize_html
@@ -106,8 +107,9 @@ async def generate_profile(website_text: str) -> CompanyProfile:
     # Extract keywords
     sanitized_text = sanitize_html(website_text)
 
-    kw_model = KeyBERT("all-MiniLM-L6-v2")
-
+    # Load a model from the HuggingFace hub (in this case the potion-base-8M model)
+    model = StaticModel.from_pretrained("minishlab/potion-base-8M")
+    kw_model = KeyBERT(model=model)
     keywords = kw_model.extract_keywords(sanitized_text, top_n=10)
 
     tier1 = [kw for kw, _ in keywords[:2]]
