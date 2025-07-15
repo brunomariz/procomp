@@ -1,23 +1,20 @@
-from typing import List
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
 
 app = FastAPI(title="ProComp API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 class URLRequest(BaseModel):
     url: str
-
 
 class CompanyProfile(BaseModel):
     url: str
@@ -28,16 +25,13 @@ class CompanyProfile(BaseModel):
     emails: List[str]
     poc: str
 
-
 @app.get("/")
 async def root():
     return {"message": "Welcome to the ProComp API!"}
 
-
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
 
 @app.post("/api/analyze-website", response_model=CompanyProfile)
 async def analyze_website(request: URLRequest):
@@ -45,7 +39,7 @@ async def analyze_website(request: URLRequest):
     Analyze a website URL and return company information
     """
     # TODO: Add website analysis logic here
-
+    
     return CompanyProfile(
         url=request.url,
         company_name="Example Company",
@@ -54,4 +48,6 @@ async def analyze_website(request: URLRequest):
         tier2_keywords=["software", "development"],
         emails=["john@example.com"],
         poc="John Doe",
+
     )
+
