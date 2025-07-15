@@ -144,7 +144,7 @@ async def generate_profile(website_text: str) -> CompanyProfile:
     sanitized_text = sanitize_html(website_text)
 
     # Load a model from the HuggingFace hub (in this case the potion-base-8M model)
-    model = StaticModel.from_pretrained("minishlab/potion-base-8M")
+    # model = StaticModel.from_pretrained("minishlab/potion-base-8M")
 
     # from keybert import KeyBERT
 
